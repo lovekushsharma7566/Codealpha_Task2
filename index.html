@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Social Media Platform - Section Wise Implementation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+        .section { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); margin: 25px 0; padding: 30px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.2); }
+        .section h2 { background: linear-gradient(45deg, #ff6b6b, #4ecdc4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 2em; margin-bottom: 25px; text-align: center; position: relative; }
+        .section h2::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 60px; height: 4px; background: linear-gradient(45deg, #ff6b6b, #4ecdc4); border-radius: 2px; }
+        
+        /* Navigation */
+        .nav-bar { position: sticky; top: 20px; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); padding: 15px 30px; border-radius: 50px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .nav-btn { background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 12px 24px; margin: 0 10px; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; font-size: 14px; }
+        .nav-btn:hover, .nav-btn.active { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4); }
+        .nav-btn.active { background: linear-gradient(45deg, #ff6b6b, #4ecdc4); }
+        
+        /* User Profile */
+        .user-card { display: flex; align-items: center; gap: 20px; padding: 20px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 20px; margin-bottom: 20px; color: white; }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 2em; }
+        .follow-btn { background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 10px 20px; border-radius: 25px; cursor: pointer; transition: all 0.3s; }
+        .follow-btn.following { background: linear-gradient(45deg, #4ecdc4, #44a08d); }
+        
+        /* Posts */
+        .post-input { width: 100%; min-height: 100px; padding: 20px; border: 2px dashed #ddd; border-radius: 15px; resize: vertical; font-family: inherit; font-size: 16px; background: rgba(255,255,255,0.7); transition: all 0.3s; }
+        .post-input:focus { outline: none; border-color: #667eea; background: white; box-shadow: 0 0 20px rgba(102, 126, 234, 0.3); }
+        .post-card { background: white; border-radius: 20px; padding: 25px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: transform 0.3s; }
+        .post-card:hover { transform: translateY(-5px); }
+        .post-actions { display: flex; gap: 15px; margin-top: 15px; }
+        .action-btn { background: none; border: 2px solid #e1e8ed; color: #657786; padding: 10px 15px; border-radius: 25px; cursor: pointer; transition: all 0.3s; font-weight: 600; }
+        .action-btn.active, .action-btn:hover { background: #667eea; color: white; border-color: #667eea; transform: scale(1.05); }
+        .comment-list { margin-top: 15px; padding-left: 20px; }
+        .comment { background: #f8f9fa; padding: 12px 15px; border-radius: 15px; margin: 8px 0; border-left: 4px solid #667eea; }
+        
+        .hidden { display: none !important; }
+        .pulse { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <--
+             SECTION 1: USER PROFILES SYSTEM
+             Complete user management with follow functionality
+              -->
+        <div class="nav-bar">
+            <button class="nav-btn active" onclick="showSection('profiles')"> Profiles</button>
+            <button class="nav-btn" onclick="showSection('feed')"> Feed</button>
+            <button class="nav-btn" onclick="showSection('create')"> Create Post</button>
+            <button class="nav-btn" onclick="showSection('activity')"> Activity</button>
+            <span id="currentUserDisplay"></span>
+        </div>
+
+        <div class="section" id="profilesSection">
+            <h2> SECTION 1: User Profiles</h2>
+            <div id="userProfiles">
+                <!-- Dynamic user profiles loaded here -->
+            </div>
+        </div>
+
+        <!-- =============================================================================
+             SECTION 2: POSTS & NEWS FEED
+             Real-time feed with likes and engagement
+             ============================================================================= -->
+        <div class="section hidden" id="feedSection">
+            <h2> SECTION 2: Social Feed</h2>
+            <div id="postsFeed">
+                <!-- Dynamic posts feed -->
+            </div>
+        </div>
+
+        <!-- =============================================================================
+             SECTION 3: POST CREATION SYSTEM
+             Rich post creation with media support
+             ============================================================================= -->
+        <div class="section hidden" id="createSection">
+            <h2> SECTION 3: Create Post</h2>
+            <div class="user-card" id="postUserCard">
+                <!-- Current user profile for posting -->
+            </div>
+            <textarea class="post-input" id="newPostContent" placeholder="What's happening? Share with your friends..."></textarea>
+            <div style="margin-top: 20px;">
+                <input type="file" id="postMedia" accept="image/*" style="margin-right: 15px;">
+                <button class="nav-btn" onclick="publishPost()">🚀 Publish</button>
+            </div>
+        </div>
+
+        <!-- =============================================================================
+             SECTION 4: COMMENTS & INTERACTIONS
+             Threaded comments with real-time updates
+             ============================================================================= -->
+        <div class="section hidden" id="commentsSection">
+            <h2> SECTION 4: Comments</h2>
+            <div id="commentedPost"></div>
+            <div style="margin-top: 25px;">
+                <textarea class="post-input" id="newComment" placeholder="Write a comment..." rows="2"></textarea>
+                <button class="nav-btn" style="margin-top: 15px;" onclick="addCommentToPost()">Post Comment</button>
+            </div>
+            <div id="commentsFeed"></div>
+        </div>
+
+        <!-- =============================================================================
+             SECTION 5: ACTIVITY & ANALYTICS
+             User activity tracking and social graph
+             ============================================================================= -->
+        <div class="section hidden" id="activitySection">
+            <h2> SECTION 5: Your Activity</h2>
+            <div id="activityFeed">
+                <!-- User activity, followers, stats -->
+            </div>
+        </div>
+
+    </div>
+
+<script>
+/* =============================================================================
+   COMPLETE SOCIAL MEDIA PLATFORM DATABASE & FEATURES
+   Users → Posts → Comments → Likes → Followers (Full Social Graph)
+   ============================================================================= */
+
+// SECTION 1-5: COMPLETE DATABASE SCHEMA
+const socialDB = {
+    currentUserId: 1,
+    users: [
+        {id:1, name:'Aditya Pratap Singh Bhadoriya', avatar:'🧑‍💻', username:'aditya_012', avatar:'', bio:'engineering student', followers:[2,3], following:[2,4], posts:[]},
+        {id:2, name:'Garima Saraswat', username:'Garsa', avatar:'👩', bio:'Painting Enthusiast', followers:[1,3,4], following:[1], posts:[]},
+        {id:3, name:'Sahil Choudhary', username:'karmabhoomi', avatar:'👨', bio:'Gaming Enthusiast', followers:[1,2], following:[1,2,4], posts:[]},
+        {id:4, name:'Saiba Joshi', username:'Ursaiba', avatar:'👩', bio:'Travel photographer', followers:[1], following:[1,3], posts:[]},
+        {id:5, name:'Sofia Khartum', username:'naag', avatar:'📸', bio:'Manager', followers:[], following:[1,2], posts:[]}
+    ],
+    posts: [
+        {id:1, userId:1, content:'Just deployed my new social media platform!  What features do you want to see next? #webdev #javascript', likes:{count:8, users:[2,3]}, comments:[], timestamp:1640995200000, media:null},
+        {id:2, userId:2, content:'New artwork drop! Created this digital painting in 3 hours  What should I draw next?', likes:{count:15, users:[1,3,4]}, comments:[], timestamp:1640992000000, media:'https://cdn.mos.cms.futurecdn.net/V9mhxs7dovfyY8WXTCUQdJ-750-80.jpg.webp'},
+        {id:3, userId:3, content:'Just hit Diamond rank in Valorant!  GG team! #gaming #esports', likes:{count:22, users:[1,2,4]}, comments:[], timestamp:1640988800000, media:null}
+    ]
+};
+
+// Persistence layer
+function saveData() { localStorage.setItem('socialMediaDB', JSON.stringify(socialDB)); }
+function loadData() { 
+    const saved = localStorage.getItem('socialMediaDB');
+    if (saved) Object.assign(socialDB, JSON.parse(saved));
+}
+
+// Initialize app
+document.addEventListener('DOMContentLoaded', function() {
+    loadData();
+    renderProfiles();
+    renderFeed();
+    updateCurrentUser();
+    saveData();
+});
+
+// =============================================================================
+// SECTION 1: USER PROFILES & FOLLOW SYSTEM
+// =============================================================================
+function renderProfiles() {
+    const container = document.getElementById('userProfiles');
+    container.innerHTML = socialDB.users.map(user => {
+        const isFollowing = socialDB.currentUserId && user.followers.includes(socialDB.currentUserId);
+        const mutualCount = socialDB.users.find(u => u.id === socialDB.currentUserId)?.following?.filter(fid => user.followers.includes(fid))?.length || 0;
+        
+        return `
+            <div class="user-card">
+                <div class="avatar">${user.avatar}</div>
+                <div style="flex:1;">
+                    <h3>${user.name}</h3>
+                    <p>@${user.username} • ${user.bio}</p>
+                    <div style="display:flex;gap:15px;font-size:14px;color:rgba(255,255,255,0.9);">
+                        <span>${user.followers.length} followers</span>
+                        <span>${user.following.length} following</span>
+                        ${mutualCount ? `<span>• ${mutualCount} mutual</span>` : ''}
+                    </div>
+                </div>
+                <button class="follow-btn ${isFollowing ? 'following' : ''}" onclick="toggleFollow(${user.id})">
+                    ${isFollowing ? 'Following' : 'Follow'}
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+function toggleFollow(userId) {
+    const currentUser = socialDB.users.find(u => u.id === socialDB.currentUserId);
+    const targetUser = socialDB.users.find(u => u.id === userId);
+    
+    const idx = targetUser.followers.indexOf(socialDB.currentUserId);
+    if (idx > -1) {
+        targetUser.followers.splice(idx, 1);
+        currentUser.following.splice(currentUser.following.indexOf(userId), 1);
+    } else {
+        targetUser.followers.push(socialDB.currentUserId);
+        currentUser.following.push(userId);
+    }
+    renderProfiles();
+    renderActivity();
+    saveData();
+}
+
+// =============================================================================
+// SECTION 2: POSTS FEED & LIKE SYSTEM
+// =============================================================================
+function renderFeed() {
+    const feed = document.getElementById('postsFeed');
+    const postsHtml = socialDB.posts.slice(-20).reverse().map(post => {
+        const user = socialDB.users.find(u => u.id === post.userId);
+        const userLikesIt = post.likes.users.includes(socialDB.currentUserId);
+        const commentCount = post.comments.length;
+        
+        return `
+            <div class="post-card">
+                <div style="display:flex;align-items:center;gap:15px;margin-bottom:15px;">
+                    <div class="avatar" style="width:50px;height:50px;font-size:1.5em;">${user.avatar}</div>
+                    <div>
+                        <strong>${user.name}</strong> <span>@${user.username}</span>
+                        <div style="font-size:14px;color:#657786;">${new Date(post.timestamp).toLocaleString()}</div>
+                    </div>
+                </div>
+                <p style="font-size:16px;line-height:1.6;margin-bottom:15px;">${post.content}</p>
+                ${post.media ? `<img src="${post.media}" style="max-width:100%;border-radius:15px;margin-bottom:15px;">` : ''}
+                <div class="post-actions">
+                    <button class="action-btn ${userLikesIt ? 'active pulse' : ''}" onclick="togglePostLike(${post.id})">
+                         ${post.likes.count}
+                    </button>
+                    <button class="action-btn" onclick="showPostComments(${post.id})">
+                         ${commentCount}
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    feed.innerHTML = postsHtml || '<div style="text-align:center;padding:40px;color:#657786;"><p>No posts yet. Be the first to share!</p></div>';
+}
+
+function togglePostLike(postId) {
+    const post = socialDB.posts.find(p => p.id === postId);
+    const idx = post.likes.users.indexOf(socialDB.currentUserId);
+    
+    if (idx > -1) {
+        post.likes.users.splice(idx, 1);
+        post.likes.count--;
+    } else {
+        post.likes.users.push(socialDB.currentUserId);
+        post.likes.count++;
+    }
+    renderFeed();
+    saveData();
+}
+
+// =============================================================================
+// SECTION 3: POST CREATION
+// =============================================================================
+function publishPost() {
+    const content = document.getElementById('newPostContent').value.trim();
+    if (!content) return alert('Please write something to share!');
+    
+    const mediaInput = document.getElementById('postMedia');
+    const media = mediaInput.files[0] ? URL.createObjectURL(mediaInput.files[0]) : null;
+    
+    const newPost = {
+        id: Date.now(),
+        userId: socialDB.currentUserId,
+        content,
+        likes: {count: 0, users: []},
+        comments: [],
+        timestamp: Date.now(),
+        media
+    };
+    
+    socialDB.posts.unshift(newPost);
+    const currentUser = socialDB.users.find(u => u.id === socialDB.currentUserId);
+    currentUser.posts.unshift(newPost.id);
+    
+    document.getElementById('newPostContent').value = '';
+    mediaInput.value = '';
+    
+    showSection('feed');
+    renderFeed();
+    renderActivity();
+    saveData();
+}
+
+// =============================================================================
+// SECTION 4: COMMENTS SYSTEM
+// =============================================================================
+let currentCommentPostId = null;
+
+function showPostComments(postId) {
+    currentCommentPostId = postId;
+    const post = socialDB.posts.find(p => p.id === postId);
+    const user = socialDB.users.find(u => u.id === post.userId);
+    
+    document.getElementById('commentedPost').innerHTML = `
+        <div class="post-card">
+            <div style="display:flex;align-items:center;gap:15px;">
+                <div class="avatar">${user.avatar}</div>
+                <strong>${user.name}</strong>
+            </div>
+            <p style="margin:15px 0;font-style:italic;">"${post.content}"</p>
+        </div>
+    `;
+    
+    renderComments();
+    showSection('comments');
+}
+
+function renderComments() {
+    const post = socialDB.posts.find(p => p.id === currentCommentPostId);
+    const commentsHtml = post.comments.map(comment => `
+        <div class="comment">
+            <div style="font-weight:600;margin-bottom:5px;">${comment.author}</div>
+            <div>${comment.content}</div>
+            <div style="font-size:12px;color:#657786;margin-top:5px;">${new Date(comment.timestamp).toLocaleString()}</div>
+        </div>
+    `).join('');
+    
+    document.getElementById('commentsFeed').innerHTML = commentsHtml;
+}
+
+function addCommentToPost() {
+    const content = document.getElementById('newComment').value.trim();
+    if (!content) return;
+    
+    const post = socialDB.posts.find(p => p.id === currentCommentPostId);
+    const currentUser = socialDB.users.find(u => u.id === socialDB.currentUserId);
+    
+    post.comments.push({
+        id: Date.now(),
+        author: currentUser.name,
+        content,
+        timestamp: Date.now()
+    });
+    
+    document.getElementById('newComment').value = '';
+    renderComments();
+    saveData();
+}
+
+// =============================================================================
+// SECTION 5: ACTIVITY FEED
+// =============================================================================
+function renderActivity() {
+    const currentUser = socialDB.users.find(u => u.id === socialDB.currentUserId);
+    const activity = [
+        ` You have ${currentUser.following.length} friends`,
+        `  Your posts got ${socialDB.posts.filter(p => p.userId === socialDB.currentUserId).reduce((sum, p) => sum + p.likes.count, 0)} likes`,
+        ` You made ${socialDB.posts.reduce((sum, p) => sum + p.comments.filter(c => c.author === currentUser.name).length, 0)} comments`,
+        ` ${socialDB.posts.filter(p => p.userId === socialDB.currentUserId).length} posts created`
+    ];
+    
+    document.getElementById('activityFeed').innerHTML = activity.map(item => 
+        `<div style="padding:20px;background:rgba(102,126,234,0.1);border-radius:15px;margin:15px 0;border-left:4px solid #667eea;">${item}</div>`
+    ).join('');
+}
+
+// =============================================================================
+// UTILITY FUNCTIONS
+// =============================================================================
+function showSection(sectionName) {
+    document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById(sectionName + 'Section').classList.remove('hidden');
+    event.target.classList.add('active');
+}
+
+function updateCurrentUser() {
+    const user = socialDB.users.find(u => u.id === socialDB.currentUserId);
+    document.getElementById('currentUserDisplay').innerHTML = ` Hi, ${user.name}!`;
+    document.getElementById('postUserCard').innerHTML = `
+        <div class="avatar">${user.avatar}</div>
+        <div><h3>${user.name}</h3><p>@${user.username}</p></div>
+    `;
+}
+</script>
+
+</body>
+</html>
